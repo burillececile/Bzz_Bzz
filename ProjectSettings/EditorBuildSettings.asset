@@ -14,4 +14,13 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Game.unity
     guid: 70902eb1a92185e4dae0fbea2babca9e
+  - enabled: 1
+    path: Assets/Scenes/VigilWin.unity
+    guid: b3c0906ceabbda846859f406c6e1622e
+  - enabled: 1
+    path: Assets/Scenes/BeezbeeLose.unity
+    guid: 51dd4aa0fb4315144ac4369edcc8effc
+  - enabled: 1
+    path: Assets/Scenes/BzzbeeWin.unity
+    guid: d632ae5aebb93b0418fa5c98a9ccd697
   m_configObjects: {}
