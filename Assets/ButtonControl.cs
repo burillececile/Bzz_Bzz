@@ -20,4 +20,8 @@ public class ButtonControl : MonoBehaviour
     {
         Application.Quit();
     }
+    public void QuitToMenu()
+    {
+        SceneManager.LoadSceneAsync(0);
+    }
 }
