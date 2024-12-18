@@ -1,109 +1,60 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class MoveVigil : MonoBehaviour
 {
+
     public Vector2 turn;              // Pour la rotation via souris
-    public Rigidbody rb;              // Rigidbody attaché
-    public int speed = 10;            // Vitesse de déplacement
-    private Vector3 moveDirection;    // Direction actuelle du mouvement
 
-    public Vector3 direction = Vector3.zero; // Pour le système d'Input
+    public float maxX;
+    public float maxY;
 
-    public bool beeCanMove;
-    public bool beeHaveRoyalJelly;
+    [SerializeField] LayerMask layerMask;
 
     void Start()
     {
-        beeHaveRoyalJelly = false;
-        beeCanMove = true;
-        Cursor.lockState = CursorLockMode.Locked;
     }
-
     void Update()
     {
         HandleRotation();
-        if(beeCanMove)
-        {
-
-            MoveLogic();
-        }
+        HandleMouseClick();
     }
 
     private void HandleRotation()
     {
-        // Rotation souri
+        // Rotation avec la souris
         turn.x += Input.GetAxis("Mouse X");
         turn.y += Input.GetAxis("Mouse Y");
 
-        turn.y = Mathf.Clamp(turn.y, -40f, 40f);
-        if(!beeCanMove)
-        {
-
-            turn.x = Mathf.Clamp(turn.x, -40f, 40f);
-        }
+        turn.y = Mathf.Clamp(turn.y, -maxY, maxY);
+        turn.x = Mathf.Clamp(turn.x, -maxX, maxX);
 
         transform.localRotation = Quaternion.Euler(-turn.y, turn.x, 0);
     }
 
-    private void MoveLogic()
+    private void HandleMouseClick()
     {
-        float horizontal = Input.GetAxis("Horizontal");
-        float vertical = Input.GetAxis("Vertical");
-
-        moveDirection = transform.forward * vertical + transform.right * horizontal;
-
-        if (moveDirection == Vector3.zero)
+        if (Input.GetMouseButtonDown(0)) // Si clic gauche
         {
-            rb.velocity = Vector3.zero;     // stop mouvement
-            rb.angularVelocity = Vector3.zero;  // stop rootation
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition); // Ray à partir de la position de la souris
+            if (Physics.Raycast(ray, out RaycastHit hitInfo, 100f)) // Longueur maximale du ray
+            {
+                Debug.Log($"Hit {hitInfo.collider.name} at {hitInfo.point}");
+
+                // Faites que l'objet regarde le point cliqué
+                Vector3 targetPosition = hitInfo.point;
+                Vector3 direction = targetPosition - transform.position;
+                direction.y = 0; // Optionnel : ignorez la hauteur si nécessaire
+                transform.rotation = Quaternion.LookRotation(direction);
+                Debug.DrawLine(ray.origin, hitInfo.point, Color.red, 2f);
+
+            }
+            else
+            {
+                Debug.Log("Mouse click hit nothing");
+            }
         }
-        else
-        {
-            rb.velocity = moveDirection.normalized * speed;
-        }
-    }
 
-    private void OnCollisionExit(Collision collision)
-    {
-        StopMovement();
-    }
-
-    private void OnTriggerExit(Collider other)
-    {
-        StopMovement();
-    }
-
-    private void StopMovement()
-    {
-        // Stop mouvement Rigidbody
-        rb.velocity = Vector3.zero;
-        rb.angularVelocity = Vector3.zero;
-
-        // Reset  position
-        transform.position = new Vector3(
-            Mathf.Round(transform.position.x * 100f) * 0.01f,
-            Mathf.Round(transform.position.y * 100f) * 0.01f,
-            Mathf.Round(transform.position.z * 100f) * 0.01f
-        );
-    }
-
-    public void BeeStoped()
-    {
-        beeCanMove = false;
-        rb.velocity = Vector3.zero;     // stop mouvement
-        rb.angularVelocity = Vector3.zero;  // stop rootation
-        StopMovement();
-        Cursor.lockState = CursorLockMode.None;
-    }
-    public void BeeFree()
-    {
-        beeCanMove = true;
-        Cursor.lockState = CursorLockMode.Locked;
-    }
-
-    public void SetRoyalJelly(bool rep)
-    {
-        beeHaveRoyalJelly = rep;
     }
 }

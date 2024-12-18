@@ -5,7 +5,7 @@ using UnityEngine;
 public class ManagerExitHive : MonoBehaviour
 {
     public GameObject bee;
-    private MoveVigil mv;
+    private MoveBee mb;
     public GameObject pointSpawn;
 
     //------
@@ -35,17 +35,28 @@ public class ManagerExitHive : MonoBehaviour
         if (other.gameObject.tag == "Bee")
         {
             bee = other.gameObject;
-            mv = bee.GetComponent<MoveVigil>();
-            mv.BeeStoped();
-            mv.transform.position = pointSpawn.transform.position;
-            nbRoyalJelly++;
-            mv.SetRoyalJelly(false);
-            CheckEndCondition();
+            mb = bee.GetComponent<MoveBee>();
+            if (mb.GetRoyalJelly())
+            {
 
-            mv.beeCanMove = true;
+                mb.BeeStoped();
+                mb.transform.position = pointSpawn.transform.position;
+                nbRoyalJelly++;
+                mb.SetRoyalJelly(false);
+                CheckEndCondition();
+
+                StartCoroutine(TimerCoroutine());
+            }
         }
     }
-
+    IEnumerator TimerCoroutine()
+    {
+        // Attends 2 secondes
+        yield return new WaitForSeconds(2f);
+        // Action après 2 secondes
+        Debug.Log("2 secondes écoulées !");
+        mb.BeeFree();
+    }
     private void CheckEndCondition()
     {
         if (nbRoyalJelly ==nbRoyalJellyTotal)

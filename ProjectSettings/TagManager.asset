@@ -6,15 +6,16 @@ TagManager:
   tags:
   - Vigil
   - Bee
+  - Hive
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Alveolus
   - Water
   - UI
-  - 
-  - 
+  - Bee
+  - BeeRobot
   - 
   - 
   - 

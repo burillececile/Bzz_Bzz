@@ -7,7 +7,14 @@ public class ActionAlveolus : MonoBehaviour
     public GameObject bee;
     public GameObject pointSpawn;
     public ManagerGame managerGame;
-    private MoveVigil mv;
+    private MoveBee mb;
+    public GameObject Alveolus;
+    public SpriteRenderer spriteAlveolus;
+
+    public Color colorStandar;
+    public Color colorAlarme;
+
+    public AudioSource audioAlarme;
     // Start is called before the first frame update
     void Start()
     {
@@ -25,26 +32,43 @@ public class ActionAlveolus : MonoBehaviour
         if (other.gameObject.tag == "Bee")
         {
             bee = other.gameObject;
-            mv = bee.GetComponent<MoveVigil>();
-            mv.BeeStoped();
-            mv.transform.position = pointSpawn.transform.position;
-            managerGame.ActiveCaptcha(gameObject);
+            mb = bee.GetComponent<MoveBee>();
+            if (!mb.GetRoyalJelly())
+            {
+                mb.BeeStoped();
+                mb.transform.position = pointSpawn.transform.position;
+                managerGame.ActiveCaptcha(gameObject);
+
+            }
         }
     }
 
     public void RapunzelCaptcha(bool rep)
     {
-        mv.BeeFree();
+        mb.BeeFree();
         if (rep)
         {
 
             Debug.Log("ALERTE");
+            spriteAlveolus.color = colorAlarme;
+            audioAlarme.Play();
+
+            StartCoroutine(TimerCoroutine());
         }
         else
         {
 
             Debug.Log("Tout est ok ou donne la gelé");
-            mv.SetRoyalJelly(true);
+            mb.SetRoyalJelly(true);
+            Destroy(Alveolus);
         }
+    }
+    IEnumerator TimerCoroutine()
+    {
+        // Attends 2 secondes
+        yield return new WaitForSeconds(5f);
+        // Action après 2 secondes
+        spriteAlveolus.color = colorStandar;
+        audioAlarme.Stop();
     }
 }
