@@ -74,13 +74,13 @@ public class ManagerGame : MonoBehaviour
 
     public void VictoireBee()
     {
-        SceneManager.LoadScene("Menu");
+        SceneManager.LoadScene("BzzbeeWin");
         Debug.Log("Bee gagne");
         // Scene Bee
     }
     public void VictoireVigil()
     {
-        SceneManager.LoadScene("Menu");
+        SceneManager.LoadScene("VigilWin");
         Debug.Log("Vigil gagne");
         // Scene Bee
     }

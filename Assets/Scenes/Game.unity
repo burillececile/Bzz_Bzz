@@ -3734,7 +3734,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 192
   listePrisonniers: []
-  nbBeeSelectedMax: 0
+  nbBeeSelectedMax: 4
+  beeCaptured: 0
   managerGame: {fileID: 705507996}
   canvasHandcluff: {fileID: 1101785853}
   listeCanvaHandcuff: []
