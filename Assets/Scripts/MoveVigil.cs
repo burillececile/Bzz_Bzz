@@ -1,109 +1,164 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class MoveVigil : MonoBehaviour
 {
+
     public Vector2 turn;              // Pour la rotation via souris
-    public Rigidbody rb;              // Rigidbody attaché
-    public int speed = 10;            // Vitesse de déplacement
-    private Vector3 moveDirection;    // Direction actuelle du mouvement
 
-    public Vector3 direction = Vector3.zero; // Pour le système d'Input
+    public float maxX;
+    public float maxY;
 
-    public bool beeCanMove;
-    public bool beeHaveRoyalJelly;
+    [SerializeField] public LayerMask layerMask;
+
+    public List<GameObject> listePrisonniers;
+    public int nbBeeSelectedMax;
+
+    public bool beeCaptured;
+
+    private MoveBee mb;
+    private MoveRobotBee mrb;
+
+    public ManagerGame managerGame;
+
+    public GameObject canvasHandcluff;
+    public GameObject[] listeCanvaHandcuff;
+    public Transform pointPrison;
 
     void Start()
     {
-        beeHaveRoyalJelly = false;
-        beeCanMove = true;
-        Cursor.lockState = CursorLockMode.Locked;
-    }
+        beeCaptured = false;
 
+        listeCanvaHandcuff = new GameObject[canvasHandcluff.transform.childCount];
+        for (int i = 0; i < listeCanvaHandcuff.Length; i++)
+        {
+            listeCanvaHandcuff[i] = canvasHandcluff.transform.GetChild(i).gameObject;
+        }
+        GenerateCanvaVigil();
+    }
     void Update()
     {
         HandleRotation();
-        if(beeCanMove)
-        {
-
-            MoveLogic();
-        }
     }
 
     private void HandleRotation()
     {
-        // Rotation souri
+        // Rotation avec la souris
         turn.x += Input.GetAxis("Mouse X");
         turn.y += Input.GetAxis("Mouse Y");
 
-        turn.y = Mathf.Clamp(turn.y, -40f, 40f);
-        if(!beeCanMove)
-        {
-
-            turn.x = Mathf.Clamp(turn.x, -40f, 40f);
-        }
+        turn.y = Mathf.Clamp(turn.y, -maxY, maxY);
+        turn.x = Mathf.Clamp(turn.x, -maxX, maxX);
 
         transform.localRotation = Quaternion.Euler(-turn.y, turn.x, 0);
     }
 
-    private void MoveLogic()
+
+    private void OnSelectBee(InputValue value)
     {
-        float horizontal = Input.GetAxis("Horizontal");
-        float vertical = Input.GetAxis("Vertical");
-
-        moveDirection = transform.forward * vertical + transform.right * horizontal;
-
-        if (moveDirection == Vector3.zero)
+        Debug.Log("input");
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition); // Ray à partir de la position de la souris
+        if (Physics.Raycast(ray, out RaycastHit hitInfo, 100f, layerMask)) // Longueur maximale du ray
         {
-            rb.velocity = Vector3.zero;     // stop mouvement
-            rb.angularVelocity = Vector3.zero;  // stop rootation
+            Debug.Log($"Hit {hitInfo.collider.gameObject.layer} at {hitInfo.point}");
+
+            // Faites que l'objet regarde le point cliqué
+            Vector3 targetPosition = hitInfo.point;
+            Vector3 direction = targetPosition - transform.position;
+            direction.y = 0; // Optionnel : ignorez la hauteur si nécessaire
+            transform.rotation = Quaternion.LookRotation(direction);
+            Debug.DrawLine(ray.origin, hitInfo.point, Color.red, 2f);
+            listePrisonniers.Add(hitInfo.collider.gameObject);
+            //listePrisonniers[listePrisonniers.Count - 1].SetActive(false);
+            if (listePrisonniers[listePrisonniers.Count - 1].tag == "Bee")
+            {
+                beeCaptured = true;
+                mb = listePrisonniers[listePrisonniers.Count-1].GetComponent<MoveBee>();
+                mb.BeeStoped();
+            }
+            else
+            {
+                mrb = listePrisonniers[listePrisonniers.Count - 1].GetComponent<MoveRobotBee>();
+                mrb.BeeStoped();
+                //Methode pour stoper les abeilles
+
+            }
+            managerGame.ActiveCaptchaVigil();
+            //afficher captcha
         }
         else
         {
-            rb.velocity = moveDirection.normalized * speed;
+            Debug.Log("Mouse click hit nothing");
         }
     }
 
-    private void OnCollisionExit(Collision collision)
+    public void RapunzelCaptcha(bool rep)
     {
-        StopMovement();
+        if (rep)
+        {
+            // arreter joueur
+            GenerateCanvaVigil();
+            listePrisonniers[listePrisonniers.Count-1].transform.position = pointPrison.position;
+        }
+        else
+        {
+            // Relacher joueur
+
+            if(mb !=  null)
+            {
+                mb.BeeFree();
+                mb = null;
+            }
+            else
+            {
+                mrb.BeeFree();
+                //Methode pour relacher les abeilles
+            }
+            listePrisonniers.RemoveAt(listePrisonniers.Count - 1); // on relache l'abeille
+        }
+
+        Debug.Log("listePrisonniers.Count == nbBeeSelectedMax : " + listePrisonniers.Count + " == " + nbBeeSelectedMax + " : " + (listePrisonniers.Count == nbBeeSelectedMax));
+
+        if (listePrisonniers.Count == nbBeeSelectedMax)
+        {
+            VerifEndConditionVigil();
+        }
     }
 
-    private void OnTriggerExit(Collider other)
+    public void VerifEndConditionVigil()
     {
-        StopMovement();
+        if (beeCaptured)
+        {
+            //Victoire du vigile
+            managerGame.VictoireVigil();
+        }
+        else
+        {
+            managerGame.VictoireBee();
+            //Victoire de l'abeille
+        }
+    }
+    private void GenerateCanvaVigil()
+    {
+        Debug.Log("listePrisonniers.Count : " + listePrisonniers.Count);
+        for (int i = 0; listeCanvaHandcuff.Length > i; i++)
+        {
+            if (i == (listePrisonniers.Count))
+            {
+                listeCanvaHandcuff[i].SetActive(true);
+            }
+            else
+            {
+                listeCanvaHandcuff[i].SetActive(false);
+
+            }
+        }
     }
 
-    private void StopMovement()
+    public bool BeeIsCaptured()
     {
-        // Stop mouvement Rigidbody
-        rb.velocity = Vector3.zero;
-        rb.angularVelocity = Vector3.zero;
-
-        // Reset  position
-        transform.position = new Vector3(
-            Mathf.Round(transform.position.x * 100f) * 0.01f,
-            Mathf.Round(transform.position.y * 100f) * 0.01f,
-            Mathf.Round(transform.position.z * 100f) * 0.01f
-        );
-    }
-
-    public void BeeStoped()
-    {
-        beeCanMove = false;
-        rb.velocity = Vector3.zero;     // stop mouvement
-        rb.angularVelocity = Vector3.zero;  // stop rootation
-        StopMovement();
-        Cursor.lockState = CursorLockMode.None;
-    }
-    public void BeeFree()
-    {
-        beeCanMove = true;
-        Cursor.lockState = CursorLockMode.Locked;
-    }
-
-    public void SetRoyalJelly(bool rep)
-    {
-        beeHaveRoyalJelly = rep;
+        return beeCaptured;
     }
 }

@@ -80,7 +80,16 @@ public class ManagerCaptcha : MonoBehaviour
 
             Debug.Log("captcha raté");
         }
-        managerGame.DisableCaptcha(captchaValid);
+        if (gameObject.name.Contains("Vigil"))
+        {
+            managerGame.DisableCaptchaVigil(captchaValid);
+
+        }
+        else
+        {
+
+            managerGame.DisableCaptcha(captchaValid);
+        }
 
 
     }
