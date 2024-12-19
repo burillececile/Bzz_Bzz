@@ -15,6 +15,8 @@ public class ActionAlveolus : MonoBehaviour
     public Color colorAlarme;
 
     public AudioSource audioAlarme;
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -49,7 +51,6 @@ public class ActionAlveolus : MonoBehaviour
         if (rep)
         {
 
-            Debug.Log("ALERTE");
             spriteAlveolus.color = colorAlarme;
             audioAlarme.Play();
 
@@ -58,7 +59,6 @@ public class ActionAlveolus : MonoBehaviour
         else
         {
 
-            Debug.Log("Tout est ok ou donne la gelé");
             mb.SetRoyalJelly(true);
             Destroy(Alveolus);
         }

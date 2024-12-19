@@ -72,6 +72,34 @@
                     "isPartOfComposite": true
                 }
             ]
+        },
+        {
+            "name": "Vigil",
+            "id": "fcc5f41f-ef6b-43f6-9bcf-5ae63392441b",
+            "actions": [
+                {
+                    "name": "SelectBee",
+                    "type": "Button",
+                    "id": "177e659f-812e-42b9-acf3-c132c0f91627",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "612a7519-bdc8-4f49-8736-b67d5157cad3",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SelectBee",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
         }
     ],
     "controlSchemes": [

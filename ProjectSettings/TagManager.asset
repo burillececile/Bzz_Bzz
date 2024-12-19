@@ -7,6 +7,7 @@ TagManager:
   - Vigil
   - Bee
   - Hive
+  - BeeRobot
   layers:
   - Default
   - TransparentFX

@@ -18,10 +18,21 @@ public class ManagerExitHive : MonoBehaviour
 
     public ManagerGame managerGame;
 
+    public GameObject canvasPotOfHoney;
+    public GameObject[] listeCanvaHoney;
+
+    public ManagerBotBees managerBotBees;
+
     // Start is called before the first frame update
     void Start()
     {
         nbRoyalJelly = 0;
+        listeCanvaHoney = new GameObject[canvasPotOfHoney.transform.childCount];
+        for (int i = 0; i < listeCanvaHoney.Length; i++)
+        {
+            listeCanvaHoney[i] = canvasPotOfHoney.transform.GetChild(i).gameObject;
+        }
+        GenerateCanvaBee();
     }
 
     // Update is called once per frame
@@ -47,6 +58,9 @@ public class ManagerExitHive : MonoBehaviour
 
                 StartCoroutine(TimerCoroutine());
             }
+        }else if (other.gameObject.tag == "BeeRobot")
+        {
+            managerBotBees.DeleteRobotBee(other.gameObject);
         }
     }
     IEnumerator TimerCoroutine()
@@ -54,14 +68,30 @@ public class ManagerExitHive : MonoBehaviour
         // Attends 2 secondes
         yield return new WaitForSeconds(2f);
         // Action après 2 secondes
-        Debug.Log("2 secondes écoulées !");
         mb.BeeFree();
     }
     private void CheckEndCondition()
     {
         if (nbRoyalJelly ==nbRoyalJellyTotal)
         {
-            managerGame.ActiveEndGame(true);
+            //managerGame.VictoireBee();
+        }
+    }
+
+    private void GenerateCanvaBee()
+    {
+
+        for (int i = 0; listeCanvaHoney.Length > i; i++)
+        {
+            if (i == nbRoyalJelly)
+            {
+                listeCanvaHoney[i].SetActive(true);
+            }
+            else
+            {
+                listeCanvaHoney[i].SetActive(false);
+
+            }
         }
     }
 }

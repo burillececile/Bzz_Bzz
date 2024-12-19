@@ -78,7 +78,6 @@ public class MoveBee : MonoBehaviour
         {
             transform.position = new Vector3(0, 0, 0);
             transform.rotation = Quaternion.identity;
-            Debug.Log("On est sortie de la ruche");
         }
     }
 
